@@ -24,7 +24,7 @@ services:
       - key: CORS_ORIGINS
         value: https://saferecover-dashboard.onrender.com
       - key: N8N_RETRY_WEBHOOK_URL
-        value: https://saferecover-n8n.onrender.com/webhook/saferecover-retry
+        value: https://trades-subdivision-divide-standing.trycloudflare.com/webhook/saferecover-retry
 
   - type: web
     name: saferecover-n8n
