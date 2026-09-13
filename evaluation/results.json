@@ -1,0 +1,14 @@
+{
+  "cases": 60,
+  "action_accuracy": 1.0,
+  "unsafe_autonomous_recovery_rate": 0.0,
+  "recoverable_case_automation_rate": 1.0,
+  "action_distribution": {
+    "RETRY": 15,
+    "BLOCK_ESCALATE": 20,
+    "REPAIR_RETRY": 15,
+    "SUPPRESS": 5,
+    "REQUIRE_APPROVAL": 5
+  },
+  "errors": []
+}

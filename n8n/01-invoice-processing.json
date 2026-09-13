@@ -1,0 +1,10 @@
+{
+  "name": "SME 01 - Invoice Processing",
+  "nodes": [
+    {"parameters":{"httpMethod":"POST","path":"invoice-intake","responseMode":"lastNode","options":{}},"id":"invoice-webhook","name":"Invoice Intake","type":"n8n-nodes-base.webhook","typeVersion":2,"position":[180,300],"webhookId":"invoice-intake"},
+    {"parameters":{"jsCode":"const p=$json.body??$json; const required=['invoice_number','supplier_id','total','currency']; const missing=required.filter(k=>p[k]===undefined||p[k]===null||p[k]===''); if(missing.length) throw new Error(`MISSING_CRITICAL_FIELD: ${missing.join(',')}`); if(p.extracted_total!==undefined && Number(p.extracted_total)!==Number(p.total)) throw new Error(`DATA_CONFLICT: extracted_total=${p.extracted_total}, submitted_total=${p.total}`); if(p.simulate==='timeout') throw new Error('API_TIMEOUT: accounting platform did not respond'); return [{json:{invoice_number:p.invoice_number,supplier_id:p.supplier_id,total:Number(p.total),currency:p.currency,status:'validated'}}];"},"id":"validate-invoice","name":"Validate Invoice Evidence","type":"n8n-nodes-base.code","typeVersion":2,"position":[430,300]},
+    {"parameters":{"jsCode":"return [{json:{...$json,posted_at:new Date().toISOString(),accounting_record_id:`acc-${$json.invoice_number}`}}];"},"id":"post-ledger","name":"Post to Accounting Sandbox","type":"n8n-nodes-base.code","typeVersion":2,"position":[680,300]}
+  ],
+  "connections":{"Invoice Intake":{"main":[[{"node":"Validate Invoice Evidence","type":"main","index":0}]]},"Validate Invoice Evidence":{"main":[[{"node":"Post to Accounting Sandbox","type":"main","index":0}]]}},
+  "settings":{"executionOrder":"v1"},"active":false,"versionId":"1"
+}

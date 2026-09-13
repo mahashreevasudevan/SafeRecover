@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: saferecover
+      POSTGRES_PASSWORD: saferecover
+      POSTGRES_DB: saferecover
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U saferecover"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://saferecover:saferecover@postgres:5432/saferecover
+      CORS_ORIGINS: http://localhost:5173,http://localhost:8080
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: gemini-2.5-flash-lite
+      N8N_RETRY_WEBHOOK_URL: http://n8n:5678/webhook/saferecover-retry
+    ports: ["8000:8000"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+  n8n:
+    image: n8nio/n8n:latest
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: saferecover
+      DB_POSTGRESDB_USER: saferecover
+      DB_POSTGRESDB_PASSWORD: saferecover
+      DB_POSTGRESDB_SCHEMA: n8n
+      N8N_ENCRYPTION_KEY: local-development-key-change-in-production
+      N8N_HOST: localhost
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      WEBHOOK_URL: http://localhost:5678/
+      SAFERECOVER_API_URL: http://backend:8000
+    ports: ["5678:5678"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+  frontend:
+    build: ./frontend
+    ports: ["8080:80"]
+    depends_on: [backend]
+volumes:
+  postgres_data:

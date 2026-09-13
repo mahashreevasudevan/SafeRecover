@@ -1,0 +1,10 @@
+{
+  "name": "SME 02 - Legal Document Intake",
+  "nodes": [
+    {"parameters":{"httpMethod":"POST","path":"legal-document-intake","responseMode":"lastNode","options":{}},"id":"document-webhook","name":"Document Intake","type":"n8n-nodes-base.webhook","typeVersion":2,"position":[180,300],"webhookId":"legal-document-intake"},
+    {"parameters":{"jsCode":"const p=$json.body??$json; if(!p.document_id||!p.document_type) throw new Error('MISSING_CRITICAL_FIELD: document identity incomplete'); if(p.candidate_matters?.length>1) throw new Error(`AMBIGUOUS_MATCH: ${p.candidate_matters.length} client matters matched`); if(p.simulate==='malformed') throw new Error('MALFORMED_JSON: extraction result is invalid'); return [{json:{document_id:p.document_id,document_type:p.document_type,matter_id:p.candidate_matters?.[0]??p.matter_id,status:'classified'}}];"},"id":"classify-document","name":"Classify and Match Matter","type":"n8n-nodes-base.code","typeVersion":2,"position":[430,300]},
+    {"parameters":{"jsCode":"return [{json:{...$json,intake_record_id:`doc-${$json.document_id}`,stored_at:new Date().toISOString()}}];"},"id":"store-document","name":"Store Intake Record","type":"n8n-nodes-base.code","typeVersion":2,"position":[680,300]}
+  ],
+  "connections":{"Document Intake":{"main":[[{"node":"Classify and Match Matter","type":"main","index":0}]]},"Classify and Match Matter":{"main":[[{"node":"Store Intake Record","type":"main","index":0}]]}},
+  "settings":{"executionOrder":"v1"},"active":false,"versionId":"1"
+}

@@ -1,0 +1,10 @@
+{
+  "name": "SME 03 - Expense Approval",
+  "nodes": [
+    {"parameters":{"httpMethod":"POST","path":"expense-approval","responseMode":"lastNode","options":{}},"id":"expense-webhook","name":"Expense Submission","type":"n8n-nodes-base.webhook","typeVersion":2,"position":[180,300],"webhookId":"expense-approval"},
+    {"parameters":{"jsCode":"const p=$json.body??$json; if(!p.employee_id||!p.claim_id||p.amount===undefined) throw new Error('MISSING_CRITICAL_FIELD: expense claim incomplete'); if(p.receipt_total!==undefined && Number(p.receipt_total)!==Number(p.amount)) throw new Error(`DATA_CONFLICT: receipt=${p.receipt_total}, claim=${p.amount}`); if(Number(p.amount)>500) throw new Error(`REQUIRE_APPROVAL: claim ${p.amount} exceeds autonomous threshold`); if(p.simulate==='duplicate') throw new Error(`DUPLICATE_EVENT: claim ${p.claim_id} already exists`); return [{json:{claim_id:p.claim_id,employee_id:p.employee_id,amount:Number(p.amount),status:'policy-approved'}}];"},"id":"apply-policy","name":"Apply Expense Policy","type":"n8n-nodes-base.code","typeVersion":2,"position":[430,300]},
+    {"parameters":{"jsCode":"return [{json:{...$json,expense_record_id:`exp-${$json.claim_id}`,posted_at:new Date().toISOString()}}];"},"id":"post-expense","name":"Post Expense Record","type":"n8n-nodes-base.code","typeVersion":2,"position":[680,300]}
+  ],
+  "connections":{"Expense Submission":{"main":[[{"node":"Apply Expense Policy","type":"main","index":0}]]},"Apply Expense Policy":{"main":[[{"node":"Post Expense Record","type":"main","index":0}]]}},
+  "settings":{"executionOrder":"v1"},"active":false,"versionId":"1"
+}

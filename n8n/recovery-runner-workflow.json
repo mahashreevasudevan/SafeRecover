@@ -1,0 +1,13 @@
+{
+  "name": "SafeRecover - Recovery Runner",
+  "nodes": [
+    {"parameters": {"httpMethod": "POST", "path": "saferecover-retry", "responseMode": "responseNode", "options": {}}, "id": "webhook", "name": "Recovery Webhook", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [220, 300], "webhookId": "saferecover-retry"},
+    {"parameters": {"conditions": {"options": {"caseSensitive": true, "typeValidation": "strict"}, "conditions": [{"leftValue": "={{$json.body.action}}", "rightValue": "REPAIR_RETRY", "operator": {"type": "string", "operation": "equals"}}], "combinator": "and"}}, "id": "route", "name": "Repair Required?", "type": "n8n-nodes-base.if", "typeVersion": 2.2, "position": [450, 300]},
+    {"parameters": {"jsCode": "const body=$json.body; const payload={...body.payload}; if(body.repair_patch?.defaults) Object.assign(payload,body.repair_patch.defaults); return [{json:{...body,payload,recovery_applied:true}}];"}, "id": "repair", "name": "Apply Allowlisted Repair", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [670, 220]},
+    {"parameters": {"respondWith": "json", "responseBody": "={{ {accepted:true,recovery_event_id:$json.recovery_event_id ?? $json.body?.recovery_event_id} }}", "options": {}}, "id": "respond", "name": "Acknowledge", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.4, "position": [900, 300]}
+  ],
+  "connections": {"Recovery Webhook": {"main": [[{"node": "Repair Required?", "type": "main", "index": 0}]]}, "Repair Required?": {"main": [[{"node": "Apply Allowlisted Repair", "type": "main", "index": 0}], [{"node": "Acknowledge", "type": "main", "index": 0}]]}, "Apply Allowlisted Repair": {"main": [[{"node": "Acknowledge", "type": "main", "index": 0}]]}},
+  "settings": {"executionOrder": "v1"},
+  "active": false,
+  "versionId": "1"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "SafeRecover - Failure Capture",
+  "nodes": [
+    {"parameters": {}, "id": "error-trigger", "name": "Workflow Error", "type": "n8n-nodes-base.errorTrigger", "typeVersion": 1, "position": [240, 300]},
+    {"parameters": {"jsCode": "const e = $json.execution ?? {}; const err = $json.error ?? {}; return [{json:{workflow_name:$json.workflow?.name ?? 'Unknown workflow',execution_id:e.id ?? `n8n-${Date.now()}`,node_name:e.lastNodeExecuted ?? 'Unknown node',error_type:err.name === 'TimeoutError' ? 'API_TIMEOUT' : 'UNKNOWN',error_message:err.message ?? 'Unknown failure',payload:e.data ?? {},attempt:1,financial_impact:0,reversible:true,evidence_agreement:1,ambiguity:0,confidence:0.9,failure_history:0}}];"}, "id": "normalise", "name": "Normalise Failure", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [470, 300]},
+    {"parameters": {"method": "POST", "url": "={{$env.SAFERECOVER_API_URL}}/api/v1/failures", "sendBody": true, "specifyBody": "json", "jsonBody": "={{$json}}", "options": {}}, "id": "send", "name": "Send to SafeRecover", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [700, 300]}
+  ],
+  "connections": {"Workflow Error": {"main": [[{"node": "Normalise Failure", "type": "main", "index": 0}]]}, "Normalise Failure": {"main": [[{"node": "Send to SafeRecover", "type": "main", "index": 0}]]}},
+  "settings": {"executionOrder": "v1"},
+  "active": false,
+  "versionId": "1"
+}
