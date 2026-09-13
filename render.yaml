@@ -48,8 +48,6 @@ services:
         fromDatabase:
           name: saferecover-postgres
           property: database
-      - key: DB_POSTGRESDB Dee? Need clean. Continue.
-        property: database
       - key: DB_POSTGRESDB_USER
         fromDatabase:
           name: saferecover-postgres
@@ -60,6 +58,12 @@ services:
           property: password
       - key: DB_POSTGRESDB_SCHEMA
         value: public
+      - key: DB_POSTGRESDB_POOL_SIZE
+        value: "5"
+      - key: DB_POSTGRESDB_CONNECTION_TIMEOUT
+        value: "60000"
+      - key: DB_POSTGRESDB_IDLE_CONNECTION_TIMEOUT
+        value: "30000"
       - key: N8N_ENCRYPTION_KEY
         generateValue: true
       - key: N8N_HOST
