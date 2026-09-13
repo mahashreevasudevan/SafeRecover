@@ -45,10 +45,11 @@ services:
           name: saferecover-postgres
           property: port
       - key: DB_POSTGRESDB_DATABASE
-
         fromDatabase:
           name: saferecover-postgres
           property: database
+      - key: DB_POSTGRESDB Dee? Need clean. Continue.
+        property: database
       - key: DB_POSTGRESDB_USER
         fromDatabase:
           name: saferecover-postgres
@@ -65,7 +66,7 @@ services:
         value: saferecover-n8n.onrender.com
       - key: N8N_PROTOCOL
         value: https
-      - key: WEBHOOK_URL
+      - key: N8N_WEBHOOK_URL
         value: https://saferecover-n8n.onrender.com/
       - key: N8N_EDITOR_BASE_URL
         value: https://saferecover-n8n.onrender.com/
@@ -75,6 +76,16 @@ services:
         value: https://saferecover-api.onrender.com
       - key: N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
         value: "true"
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=384"
+      - key: N8N_RUNNERS_ENABLED
+        value: "false"
+      - key: N8N_DIAGNOSTICS_ENABLED
+        value: "false"
+      - key: N8N_PERSONALIZATION_ENABLED
+        value: "false"
+      - key: N8N_VERSION_NOTIFICATIONS_ENABLED
+        value: "false"
 
   - type: web
     name: saferecover-dashboard
