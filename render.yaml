@@ -58,7 +58,7 @@ services:
           name: saferecover-postgres
           property: password
       - key: DB_POSTGRESDB_SCHEMA
-        value: n8n
+        value: public
       - key: N8N_ENCRYPTION_KEY
         generateValue: true
       - key: N8N_HOST
