@@ -32,7 +32,6 @@ services:
     plan: free
     image:
       url: docker.io/n8nio/n8n:latest
-    healthCheckPath: /healthz
     envVars:
       - key: DB_TYPE
         value: postgresdb
@@ -70,6 +69,10 @@ services:
         value: saferecover-n8n.onrender.com
       - key: N8N_PROTOCOL
         value: https
+      - key: N8N_PORT
+        value: "10000"
+      - key: N8N_LISTEN_ADDRESS
+        value: "0.0.0.0"
       - key: N8N_WEBHOOK_URL
         value: https://saferecover-n8n.onrender.com/
       - key: N8N_EDITOR_BASE_URL
@@ -82,8 +85,6 @@ services:
         value: "true"
       - key: NODE_OPTIONS
         value: "--max-old-space-size=384"
-      - key: N8N_RUNNERS_ENABLED
-        value: "false"
       - key: N8N_DIAGNOSTICS_ENABLED
         value: "false"
       - key: N8N_PERSONALIZATION_ENABLED
