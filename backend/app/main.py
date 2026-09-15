@@ -55,9 +55,16 @@ async def ingest_failure(event: FailureEventIn, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(record)
     dispatched, detail = await dispatch_recovery(record)
+    db.refresh(record)
+
     if dispatched is False:
         record.status = RecoveryStatus.ESCALATED.value
-    record.verification_detail = detail
+    elif record.status not in {
+        RecoveryStatus.VERIFIED.value,
+        RecoveryStatus.VERIFICATION_FAILED.value,
+    }:
+        record.verification_detail = detail
+
     db.commit()
     db.refresh(record)
     return record
