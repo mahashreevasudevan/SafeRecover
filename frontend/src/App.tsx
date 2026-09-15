@@ -4,14 +4,24 @@ import { api } from "./api";
 import type { Metrics, RecoveryEvent } from "./types";
 
 const demoEvents: RecoveryEvent[] = [
-  { id: "demo-1", workflow_name: "Invoice Processing", execution_id: "exec-4821", node_name: "Parse invoice", error_type: "MALFORMED_JSON", error_message: "Unexpected token at line 1", payload: {}, attempt: 1, diagnosis: "Payload is structurally invalid but repairable without changing business meaning.", diagnosis_source: "gemini:gemini-2.5-flash-lite", proposed_action: "REPAIR_RETRY", risk_score: .08, risk_band: "LOW", risk_reasons: ["low-impact reversible action"], status: "VERIFIED", repair_patch: {normalise_json: true}, verification_passed: true, verification_detail: "Invoice record created with expected fields.", created_at: new Date(Date.now()-1000*60*7).toISOString() },
-  { id: "demo-2", workflow_name: "Legal Document Intake", execution_id: "exec-4818", node_name: "Match client matter", error_type: "AMBIGUOUS_MATCH", error_message: "3 client matters matched", payload: {}, attempt: 1, diagnosis: "Several candidate matters match the supplied evidence.", diagnosis_source: "gemini:gemini-2.5-flash-lite", proposed_action: "REQUIRE_APPROVAL", risk_score: .47, risk_band: "MEDIUM", risk_reasons: ["ambiguity"], status: "AWAITING_APPROVAL", repair_patch: null, verification_passed: null, verification_detail: null, created_at: new Date(Date.now()-1000*60*19).toISOString() },
-  { id: "demo-3", workflow_name: "Expense Approval", execution_id: "exec-4809", node_name: "Post approved expense", error_type: "DATA_CONFLICT", error_message: "Receipt £1,250; claim £12,500", payload: {}, attempt: 1, diagnosis: "The receipt and submitted claim disagree on a material value.", diagnosis_source: "gemini:gemini-2.5-flash-lite", proposed_action: "BLOCK_ESCALATE", risk_score: .87, risk_band: "HIGH", risk_reasons: ["financial impact", "evidence disagreement"], status: "ESCALATED", repair_patch: null, verification_passed: null, verification_detail: "Blocked before mutation.", created_at: new Date(Date.now()-1000*60*31).toISOString() },
-  { id: "demo-4", workflow_name: "Invoice Processing", execution_id: "exec-4801", node_name: "Accounting API", error_type: "API_TIMEOUT", error_message: "Upstream request timed out", payload: {}, attempt: 2, diagnosis: "Transient upstream timeout; a bounded retry is appropriate.", diagnosis_source: "rules-fallback", proposed_action: "RETRY", risk_score: .11, risk_band: "LOW", risk_reasons: ["low-impact reversible action"], status: "AUTO_RECOVERED", repair_patch: null, verification_passed: null, verification_detail: "Retry dispatched.", created_at: new Date(Date.now()-1000*60*48).toISOString() },
+  { id: "demo-1", workflow_name: "Invoice Processing", execution_id: "recovery-final-004", node_name: "Invoice Parser", error_type: "MALFORMED_JSON", error_message: "Invoice extraction returned malformed JSON", payload: { invoice_number: "INV-FINAL-004" }, attempt: 1, diagnosis: "Payload is structurally invalid but repairable without changing business meaning.", diagnosis_source: "rules-fallback", proposed_action: "REPAIR_RETRY", risk_score: .005, risk_band: "LOW", risk_reasons: ["low-impact reversible action"], status: "VERIFIED", repair_patch: {normalise_json: true}, verification_passed: true, verification_detail: "Invoice retry completed successfully and expected downstream state was reached.", created_at: new Date(Date.now()-1000*60*7).toISOString() },
+
+  { id: "demo-2", workflow_name: "Legal Document Intake", execution_id: "approval-002", node_name: "Match client matter", error_type: "AMBIGUOUS_MATCH", error_message: "Multiple client matters matched the supplied evidence", payload: {}, attempt: 1, diagnosis: "Several candidate matters match the supplied evidence, so autonomous mutation is unsafe.", diagnosis_source: "rules-fallback", proposed_action: "REQUIRE_APPROVAL", risk_score: .47, risk_band: "MEDIUM", risk_reasons: ["ambiguity"], status: "AWAITING_APPROVAL", repair_patch: null, verification_passed: null, verification_detail: null, created_at: new Date(Date.now()-1000*60*19).toISOString() },
+
+  { id: "demo-3", workflow_name: "Expense Approval", execution_id: "escalation-003", node_name: "Post approved expense", error_type: "DATA_CONFLICT", error_message: "Receipt £1,250; claim £12,500", payload: {}, attempt: 1, diagnosis: "Authoritative sources disagree on a material value.", diagnosis_source: "rules-fallback", proposed_action: "BLOCK_ESCALATE", risk_score: .87, risk_band: "HIGH", risk_reasons: ["financial impact", "evidence disagreement"], status: "ESCALATED", repair_patch: null, verification_passed: null, verification_detail: "No autonomous action dispatched.", created_at: new Date(Date.now()-1000*60*31).toISOString() },
+
+  { id: "demo-4", workflow_name: "Invoice Processing", execution_id: "retry-004", node_name: "Accounting API", error_type: "API_TIMEOUT", error_message: "Accounting platform did not respond", payload: {}, attempt: 2, diagnosis: "Transient upstream timeout; a bounded retry is appropriate.", diagnosis_source: "rules-fallback", proposed_action: "RETRY", risk_score: .11, risk_band: "LOW", risk_reasons: ["low-impact reversible action"], status: "AUTO_RECOVERED", repair_patch: null, verification_passed: null, verification_detail: "Retry dispatched.", created_at: new Date(Date.now()-1000*60*48).toISOString() },
 ];
 
-const demoMetrics: Metrics = { total_events: 48, autonomous_events: 29, verified_recoveries: 25, escalated_events: 11, awaiting_approval: 8, unsafe_autonomous_rate: 0, verification_success_rate: .926 };
-
+const demoMetrics: Metrics = {
+  total_events: 4,
+  autonomous_events: 2,
+  verified_recoveries: 1,
+  escalated_events: 1,
+  awaiting_approval: 1,
+  unsafe_autonomous_rate: 0,
+  verification_success_rate: 1
+};
 function pretty(value: string) { return value.replaceAll("_", " ").toLowerCase().replace(/^./, c => c.toUpperCase()); }
 
 export default function App() {
